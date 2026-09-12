@@ -1005,3 +1005,40 @@ h1 .build-tag {
     vertical-align: super;
     letter-spacing: 0;
 }
+
+/* ===== Intestazione su una riga sola =====================================
+   Sul telefono la scala dei caratteri di sistema ingrandisce tutto: il titolo
+   andava a capo e il pulsante del tema finiva su una seconda riga. Il titolo
+   si stringe e, se proprio non ci sta, si taglia: i comandi restano in fila. */
+@media (max-width: 600px) {
+    header {
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    h1 {
+        font-size: 1.1rem;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .header-controls {
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Il nome dell'anime: al massimo due righe, poi i puntini. Con tre righe
+       copriva mezza copertina, che e' proprio quello che si voleva liberare. */
+    .anime-name {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .anime-name-container {
+        max-width: 62%;
+    }
+}
