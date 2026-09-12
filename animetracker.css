@@ -476,7 +476,10 @@ h1 {
 }
 
 .anime-item.has-image {
-    min-height: 80px;
+    /* Era 80 px, e la figura restava una striscia dietro ai comandi. Portata a
+       210: con i comandi spinti agli angoli, il centro della copertina resta
+       libero e si vede di che anime si tratta. */
+    min-height: 210px;
 }
 
 .anime-item.has-image::before {
@@ -566,8 +569,11 @@ h1 {
 }
 
 .anime-name-container {
-    flex: 1;
-    min-width: 120px;
+    /* Il riquadro del titolo e' largo quanto il titolo. Prima prendeva tutta la
+       riga anche per un nome di due parole, e copriva l'immagine per niente. */
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .anime-name {
@@ -784,21 +790,24 @@ h1 {
     }
 
     .anime-name-container {
-        width: 100%;
+        width: auto;
+        max-width: 100%;
     }
 
     .anime-name {
         font-size: 0.95rem;
-        width: 100%;
+        width: auto;
     }
 
     .episode-controls {
         width: 100%;
+        align-self: stretch;
         justify-content: center;
     }
 
     .anime-action-buttons {
         width: 100%;
+        align-self: stretch;
         justify-content: center;
     }
 
@@ -836,4 +845,163 @@ h1 {
     .modal-header h2 {
         font-size: 1.3rem;
     }
+}
+
+/* ===== Caselle piu' alte, con l'immagine in vista =======================
+   La casella e' alta il doppio e il contenuto sta agli estremi: il titolo in
+   alto, i comandi in basso, e in mezzo si vede la copertina, che e' il motivo
+   per cui la si carica. */
+.anime-item.has-image .anime-content-wrapper {
+    min-height: 210px;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* L'ombra sotto tiene leggibili i comandi anche sopra una figura chiara. */
+.anime-item.has-image::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 55%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.45));
+    z-index: 0;
+    pointer-events: none;
+}
+
+.anime-item .anime-name {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+}
+
+/* ===== Due numeri, un solo comando =====================================
+   A sinistra l'ultimo episodio visto, a destra il prossimo da vedere. Il
+   secondo non e' un dato: e' il primo + 1, e per questo non si scrive. */
+.episode-pair {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.episode-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 3px 8px 2px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    min-width: 66px;
+    box-sizing: border-box;
+}
+
+.anime-item.has-image .episode-box {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme="dark"] .anime-item.has-image .episode-box {
+    background: rgba(25, 25, 25, 0.92);
+}
+
+.episode-box .episode-input {
+    /* ⚠️ larghezza esplicita: con `width: 100%` un input number si allarga fino
+       alla sua dimensione naturale, che sono una ventina di caratteri, e la
+       casella dell'episodio visto diventava una barra lunga mezzo schermo. */
+    width: 52px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.15;
+    backdrop-filter: none;
+}
+
+.episode-next {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--accent-color);
+}
+
+.episode-caption {
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    color: var(--text-secondary);
+    line-height: 1;
+}
+
+.anime-item.has-image .episode-caption {
+    color: #333;
+}
+
+[data-theme="dark"] .anime-item.has-image .episode-caption {
+    color: #ddd;
+}
+
+/* Il prossimo episodio e' quello che si va a cercare: si distingue. */
+.episode-box-next {
+    border-color: var(--accent-color);
+}
+
+/* ===== Su telefono: titolo e comandi agli angoli, immagine in mezzo ======
+   Con la casella alta il doppio conviene spingere i comandi ai bordi invece di
+   impilarli: titolo in alto a sinistra, pulsanti in alto a destra, episodi in
+   basso al centro. Quello che resta in mezzo e' copertina, che e' il motivo per
+   cui l'altezza e' stata raddoppiata. */
+@media (max-width: 600px) {
+    .anime-content-wrapper {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto 1fr auto;
+        align-items: start;
+        gap: 8px;
+    }
+
+    .anime-name-container {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .anime-action-buttons {
+        grid-column: 2;
+        grid-row: 1;
+        width: auto;
+        justify-self: end;
+        justify-content: flex-end;
+    }
+
+    .episode-controls {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        width: auto;
+        justify-self: center;
+    }
+
+    .flag-info {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: end;
+        align-self: end;
+    }
+}
+
+
+/* La versione a fianco del titolo: leggibile quando la si cerca, invisibile
+   quando non la si cerca. */
+h1 .build-tag {
+    font-size: 0.5em;
+    font-weight: 400;
+    opacity: 0.45;
+    margin-left: 6px;
+    vertical-align: super;
+    letter-spacing: 0;
 }

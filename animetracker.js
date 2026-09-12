@@ -36,6 +36,10 @@ class AnimeTracker {
         // what puts the user's list on screen.
         const buildLabel = document.getElementById('buildLabel');
         if (buildLabel) buildLabel.textContent = 'build ' + APP_BUILD;
+        // La stessa cosa a fianco del titolo: cosi' si vede subito quale
+        // versione sta girando, senza aprire le statistiche.
+        const buildTag = document.getElementById('buildTag');
+        if (buildTag) buildTag.textContent = 'v' + APP_BUILD;
         // Set sort select value
         document.getElementById('sortSelect').value = this.sortType;
         this.updateDisplay();
@@ -568,6 +572,16 @@ class AnimeTracker {
         minusBtn.textContent = '−';
         minusBtn.addEventListener('click', () => this.updateEpisode(anime.id, -1));
 
+        // Due numeri, un solo comando: a sinistra l'ultimo episodio visto (si
+        // puo' anche scrivere a mano), a destra il prossimo da vedere, che e'
+        // sempre quello + 1. I tasti - e + muovono tutti e due, perche' il
+        // secondo e' calcolato dal primo e non e' un dato a se'.
+        const episodePair = document.createElement('div');
+        episodePair.className = 'episode-pair';
+
+        const seenBox = document.createElement('label');
+        seenBox.className = 'episode-box';
+
         const episodeInput = document.createElement('input');
         episodeInput.type = 'number';
         episodeInput.className = 'episode-input';
@@ -581,13 +595,37 @@ class AnimeTracker {
             }
         });
 
+        const seenCaption = document.createElement('span');
+        seenCaption.className = 'episode-caption';
+        seenCaption.textContent = 'seen';
+
+        seenBox.appendChild(episodeInput);
+        seenBox.appendChild(seenCaption);
+
+        const nextBox = document.createElement('div');
+        nextBox.className = 'episode-box episode-box-next';
+
+        const nextValue = document.createElement('span');
+        nextValue.className = 'episode-next';
+        nextValue.textContent = anime.episode + 1;
+
+        const nextCaption = document.createElement('span');
+        nextCaption.className = 'episode-caption';
+        nextCaption.textContent = 'next';
+
+        nextBox.appendChild(nextValue);
+        nextBox.appendChild(nextCaption);
+
+        episodePair.appendChild(seenBox);
+        episodePair.appendChild(nextBox);
+
         const plusBtn = document.createElement('button');
         plusBtn.className = 'episode-btn';
         plusBtn.textContent = '+';
         plusBtn.addEventListener('click', () => this.updateEpisode(anime.id, 1));
 
         episodeControls.appendChild(minusBtn);
-        episodeControls.appendChild(episodeInput);
+        episodeControls.appendChild(episodePair);
         episodeControls.appendChild(plusBtn);
 
         // Action buttons
@@ -1065,9 +1103,37 @@ class AnimeTracker {
     }
 }
 
+// Perche' il telefono restava indietro dopo una pubblicazione.
+//
+// GitHub Pages serve l'HTML con `Cache-Control: max-age=600` e non si possono
+// mandare intestazioni proprie: per dieci minuti il guscio mostra la pagina di
+// prima. Il `?v=N` sui fogli non basta, perche' a leggerlo e' l'HTML: se arriva
+// dalla cache si porta dietro i riferimenti vecchi. E il meta Cache-Control non
+// serve a niente. L'unica via e' che sia la pagina a controllarsi: legge un
+// manifesto senza cache e, se e' rimasta indietro, si ricarica UNA VOLTA SOLA
+// con la revisione in coda, che e' un indirizzo mai visto e quindi non puo'
+// essere in cache. Freno in sessionStorage; senza rete si tiene quello che c'e'.
+function allineaVersione() {
+    if (APP_BUILD === '?') return;
+    try {
+        if (sessionStorage.getItem('at-riletta') === '1') return;
+    } catch (e) {
+        return;
+    }
+    fetch('versione.json?t=' + Date.now(), { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(m => {
+            if (!m || !m.rev || String(m.rev) === String(APP_BUILD)) return;
+            sessionStorage.setItem('at-riletta', '1');
+            location.replace(location.pathname + '?v=' + m.rev);
+        })
+        .catch(() => {});
+}
+
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     if (isCapacitorNative()) document.body.classList.add('capacitor');
+    allineaVersione();
     window.animeTracker = new AnimeTracker();
 
     // Check for expired flags every hour
