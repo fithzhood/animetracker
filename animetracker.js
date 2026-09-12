@@ -656,15 +656,22 @@ class AnimeTracker {
         deleteBtn.title = 'Delete';
         deleteBtn.addEventListener('click', () => this.deleteAnime(anime.id));
 
-        actionButtons.appendChild(upToDateBtn);
-        actionButtons.appendChild(completedBtn);
+        // Stella e pallino stanno in basso, ai due lati degli episodi: hanno a
+        // che fare col numero (a che punto sono) piu' che col titolo. In alto a
+        // destra restano solo modifica ed elimina, e il nome guadagna la riga.
+        const bottomRow = document.createElement('div');
+        bottomRow.className = 'anime-bottom-row';
+        bottomRow.appendChild(upToDateBtn);
+        bottomRow.appendChild(episodeControls);
+        bottomRow.appendChild(completedBtn);
+
         actionButtons.appendChild(editBtn);
         actionButtons.appendChild(deleteBtn);
 
         // Assemble horizontal layout
         contentWrapper.appendChild(nameContainer);
-        contentWrapper.appendChild(episodeControls);
         contentWrapper.appendChild(actionButtons);
+        contentWrapper.appendChild(bottomRow);
 
         item.appendChild(contentWrapper);
 

@@ -979,11 +979,20 @@ h1 {
         justify-content: flex-end;
     }
 
-    .episode-controls {
+    .anime-bottom-row {
         grid-column: 1 / -1;
         grid-row: 3;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .episode-controls {
         width: auto;
-        justify-self: center;
+        flex: 0 1 auto;
+        justify-content: center;
     }
 
     .flag-info {
@@ -1058,4 +1067,13 @@ h1 .build-tag {
         font-size: 0.95rem;
         min-width: 0;
     }
+}
+
+
+/* La fila in basso: stella a sinistra, episodi al centro, completato a destra.
+   Fuori dal telefono resta una fila come le altre. */
+.anime-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
