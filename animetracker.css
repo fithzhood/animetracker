@@ -259,6 +259,26 @@ h1 {
     margin: 0;
 }
 
+.backup-text {
+    width: 100%;
+    height: 120px;
+    box-sizing: border-box;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.7rem;
+    line-height: 1.3;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    resize: vertical;
+    white-space: pre-wrap;
+    word-break: break-all;
+    /* A textarea is a writing field, so selection has to work here. */
+    -webkit-user-select: text;
+    user-select: text;
+}
+
 .build-label {
     font-size: 0.7rem;
     color: var(--text-secondary);

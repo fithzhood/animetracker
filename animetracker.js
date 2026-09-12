@@ -117,7 +117,7 @@ class AnimeTracker {
             this.importBackupFile(e.target.files[0]);
             e.target.value = '';
         });
-        document.getElementById('sendPcBtn').addEventListener('click', () => this.sendBackupToPC());
+        document.getElementById('showTextBtn').addEventListener('click', () => this.showBackupAsText());
 
         // Edit modal
         document.getElementById('closeEditModal').addEventListener('click', () => this.closeEditModal());
@@ -834,41 +834,45 @@ class AnimeTracker {
         }
     }
 
-    async sendBackupToPC() {
-        const port = 8777;
+
+    // Shows the backup as plain text you can select and copy by hand. This is
+    // the one output channel a locked-down WebView cannot take away: no file
+    // download, no network call, just characters on screen.
+    showBackupAsText() {
         const payload = this.buildBackup();
         const json = JSON.stringify(payload);
         const sizeMB = (json.length / (1024 * 1024)).toFixed(2);
-        const url = `http://localhost:${port}/backup`;
+        const box = document.getElementById('backupText');
 
-        this.backupStatus('Sending to PC...', null);
+        box.hidden = false;
+        box.value = json;
+        box.focus();
+        box.select();
+        box.setSelectionRange(0, json.length);
+
+        const summary = `${payload.counts.anime} anime, ${payload.counts.withImages} with images (${sizeMB} MB)`;
+
+        let copied = false;
         try {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: json
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            this.backupStatus(`Sent ${payload.counts.anime} anime, ${payload.counts.withImages} with images (${sizeMB} MB).`, 'ok');
-            return;
+            copied = document.execCommand('copy');
         } catch (e) {
-            // A WebView built with the default mixed-content policy refuses an
-            // http request coming from an https page. A form submit is a
-            // top-level navigation instead, which that policy does not cover.
-            this.backupStatus('Direct send refused, submitting a form instead...', null);
+            copied = false;
         }
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = url;
-        form.enctype = 'text/plain';
-        const field = document.createElement('input');
-        field.type = 'hidden';
-        field.name = 'data';
-        field.value = json;
-        form.appendChild(field);
-        document.body.appendChild(form);
-        form.submit();
+        if (copied) {
+            this.backupStatus(`Copied: ${summary}.`, 'ok');
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(
+                () => this.backupStatus(`Copied: ${summary}.`, 'ok'),
+                () => this.backupStatus(`Ready to copy by hand: ${summary}.`, null)
+            );
+            return;
+        }
+
+        this.backupStatus(`Ready to copy by hand: ${summary}.`, null);
     }
 
     parseBackup(text) {

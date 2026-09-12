@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Tracker</title>
-    <link rel="stylesheet" href="animetracker.css?v=5">
+    <link rel="stylesheet" href="animetracker.css?v=6">
 </head>
 <body>
     <div class="container">
@@ -72,7 +72,8 @@
             <div class="backup-section">
                 <button id="exportBtn" class="btn btn-primary">⬇️ Export backup</button>
                 <button id="importBtn" class="btn btn-secondary">⬆️ Import backup</button>
-                <button id="sendPcBtn" class="btn btn-secondary">📡 Send to PC</button>
+                <button id="showTextBtn" class="btn btn-secondary">📋 Copy backup as text</button>
+                <textarea id="backupText" class="backup-text" readonly spellcheck="false" hidden></textarea>
                 <input type="file" id="importFileInput" accept="application/json,.json" style="display: none;">
                 <p id="backupStatus" class="backup-status"></p>
                 <p id="buildLabel" class="build-label"></p>
@@ -147,7 +148,7 @@
         </div>
     </div>
 
-    <script src="animetracker.js?v=5"></script>
+    <script src="animetracker.js?v=6"></script>
 </body>
 </html>
 
