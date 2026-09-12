@@ -8,6 +8,11 @@ const APP_BUILD = (() => {
     return match ? match[1] : '?';
 })();
 
+// True only inside the Android shell, never in a browser tab.
+function isCapacitorNative() {
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
 class AnimeTracker {
     constructor() {
         this.animeList = [];
@@ -814,21 +819,44 @@ class AnimeTracker {
         return `animetracker-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
     }
 
-    exportBackup() {
+    async exportBackup() {
+        const payload = this.buildBackup();
+        const json = JSON.stringify(payload);
+        const sizeMB = (json.length / (1024 * 1024)).toFixed(2);
+        const name = this.backupFileName();
+        const summary = `${payload.counts.anime} anime, ${payload.counts.withImages} with images (${sizeMB} MB)`;
+
+        // In the Android shell an <a download> is silently dropped, so write the
+        // file natively instead.
+        const filesystem = isCapacitorNative() && window.Capacitor.Plugins
+            && window.Capacitor.Plugins.Filesystem;
+        if (filesystem) {
+            try {
+                const written = await filesystem.writeFile({
+                    path: name,
+                    data: json,
+                    directory: 'DOCUMENTS',
+                    encoding: 'utf8',
+                    recursive: true
+                });
+                this.backupStatus(`Saved ${summary} to ${written.uri || name}.`, 'ok');
+            } catch (e) {
+                this.backupStatus('Export failed: ' + e.message, 'error');
+            }
+            return;
+        }
+
         try {
-            const payload = this.buildBackup();
-            const json = JSON.stringify(payload);
-            const sizeMB = (json.length / (1024 * 1024)).toFixed(2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = this.backupFileName();
+            a.download = name;
             document.body.appendChild(a);
             a.click();
             a.remove();
             setTimeout(() => URL.revokeObjectURL(url), 5000);
-            this.backupStatus(`Saved ${payload.counts.anime} anime, ${payload.counts.withImages} with images (${sizeMB} MB).`, 'ok');
+            this.backupStatus(`Saved ${summary}.`, 'ok');
         } catch (e) {
             this.backupStatus('Export failed: ' + e.message, 'error');
         }
@@ -1039,6 +1067,7 @@ class AnimeTracker {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    if (isCapacitorNative()) document.body.classList.add('capacitor');
     window.animeTracker = new AnimeTracker();
 
     // Check for expired flags every hour
