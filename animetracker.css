@@ -1042,8 +1042,12 @@ h1 .build-tag {
         max-width: 100%;
     }
 
+    /* ⚠️ Niente percentuale qui: il contenitore sta gia' dentro la colonna
+       `minmax(0, 1fr)` della griglia, quindi un `max-width: 56%` era il 56% di
+       quello che restava, non della casella, e il nome si tagliava dopo sette
+       lettere. Il limite lo mette la griglia. */
     .anime-name-container {
-        max-width: 56%;
+        max-width: 100%;
     }
 
     /* I quattro pulsanti si stringono un po': quello che risparmiano va al
