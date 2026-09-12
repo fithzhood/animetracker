@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Tracker</title>
+    <link rel="stylesheet" href="animetracker.css?v=5">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Anime Tracker</h1>
+            <div class="header-controls">
+                <button id="addAnimeBtn" class="btn btn-primary">+ Add</button>
+                <button id="statsBtn" class="icon-btn" title="Statistics">📊</button>
+                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
+        </header>
+
+        <div class="controls-section">
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Search anime..." maxlength="100">
+                <div class="sort-random-row">
+                    <select id="sortSelect" class="sort-select">
+                        <option value="alphabetical">Alphabetical (A-Z)</option>
+                        <option value="alphabetical-desc">Alphabetical (Z-A)</option>
+                        <option value="date-added">Date Added (Oldest)</option>
+                        <option value="date-added-desc">Date Added (Newest)</option>
+                        <option value="episode">Episode (Lowest)</option>
+                        <option value="episode-desc">Episode (Highest)</option>
+                        <option value="random">Random</option>
+                    </select>
+                    <button id="randomBtn" class="btn btn-secondary">Randomize</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="anime-list" id="animeList">
+            <!-- Anime entries will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Statistics</h2>
+                <button class="modal-close" id="closeStatsModal">&times;</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Total:</span>
+                    <span class="stat-value" id="totalCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Watching:</span>
+                    <span class="stat-value" id="watchingCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Up to date:</span>
+                    <span class="stat-value" id="upToDateCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Completed:</span>
+                    <span class="stat-value" id="completedCount">0</span>
+                </div>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <button id="optimizeBtn" class="btn btn-secondary" style="width: 100%;">⚡ Optimize Storage (Compress Images)</button>
+                <p id="optimizeStatus" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px; min-height: 1.2em;"></p>
+            </div>
+            <div class="backup-section">
+                <button id="exportBtn" class="btn btn-primary">⬇️ Export backup</button>
+                <button id="importBtn" class="btn btn-secondary">⬆️ Import backup</button>
+                <button id="sendPcBtn" class="btn btn-secondary">📡 Send to PC</button>
+                <input type="file" id="importFileInput" accept="application/json,.json" style="display: none;">
+                <p id="backupStatus" class="backup-status"></p>
+                <p id="buildLabel" class="build-label"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Anime Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Anime</h2>
+                <button class="modal-close" id="closeAddModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="animeNameInput">Anime Name:</label>
+                    <input type="text" id="animeNameInput" placeholder="Anime name" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="episodeInput">Episode:</label>
+                    <input type="number" id="episodeInput" placeholder="Episode" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="imageUrlInput">Image URL:</label>
+                    <input type="url" id="imageUrlInput" placeholder="Image URL (optional)" maxlength="500">
+                </div>
+                <div class="form-group">
+                    <label for="imageFileInput">Or upload image:</label>
+                    <input type="file" id="imageFileInput" accept="image/*">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+                <div class="modal-actions">
+                    <button id="addBtn" class="btn btn-primary">Add</button>
+                    <button id="cancelAddBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Anime Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Anime</h2>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editAnimeName">Anime Name:</label>
+                    <input type="text" id="editAnimeName" placeholder="Anime name" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="editEpisode">Episode:</label>
+                    <input type="number" id="editEpisode" placeholder="Episode" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="editImageUrl">Image URL:</label>
+                    <input type="url" id="editImageUrl" placeholder="Image URL (optional)" maxlength="500">
+                </div>
+                <div class="form-group">
+                    <label for="editImageFile">Or upload image:</label>
+                    <input type="file" id="editImageFile" accept="image/*">
+                    <div id="editImagePreview" class="image-preview"></div>
+                </div>
+                <div class="modal-actions">
+                    <button id="saveEditBtn" class="btn btn-primary">Save</button>
+                    <button id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    <button id="removeImageBtn" class="btn btn-danger">Remove Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="animetracker.js?v=5"></script>
+</body>
+</html>
+
