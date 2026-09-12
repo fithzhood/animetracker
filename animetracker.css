@@ -997,12 +997,12 @@ h1 {
 
 /* La versione a fianco del titolo: leggibile quando la si cerca, invisibile
    quando non la si cerca. */
+/* A fianco del titolo, sulla stessa riga di base: ad apice sembrava una nota. */
 h1 .build-tag {
-    font-size: 0.5em;
+    font-size: 0.55em;
     font-weight: 400;
     opacity: 0.45;
-    margin-left: 6px;
-    vertical-align: super;
+    margin-left: 7px;
     letter-spacing: 0;
 }
 
@@ -1029,16 +1029,29 @@ h1 .build-tag {
         flex-shrink: 0;
     }
 
-    /* Il nome dell'anime: al massimo due righe, poi i puntini. Con tre righe
-       copriva mezza copertina, che e' proprio quello che si voleva liberare. */
-    .anime-name {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+    /* Il nome dell'anime sta su UNA riga: andando a capo si prendeva tre righe
+       di copertina, cioe' proprio lo spazio che si voleva liberare. Se non ci
+       sta si taglia coi puntini — il nome intero si legge aprendo la modifica.
+       ⚠️ Serve la specificita' di `.anime-item .anime-name`, se no vince la
+       regola che dichiara `display: inline-block`. */
+    .anime-item .anime-name {
+        display: block;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .anime-name-container {
-        max-width: 62%;
+        max-width: 56%;
+    }
+
+    /* I quattro pulsanti si stringono un po': quello che risparmiano va al
+       nome, che e' l'informazione, mentre loro sono icone e si riconoscono
+       lo stesso. */
+    .anime-action-buttons .btn-icon {
+        padding: 5px 7px;
+        font-size: 0.95rem;
+        min-width: 0;
     }
 }
