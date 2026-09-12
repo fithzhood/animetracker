@@ -1044,7 +1044,10 @@ h1 .build-tag {
        ⚠️ Serve la specificita' di `.anime-item .anime-name`, se no vince la
        regola che dichiara `display: inline-block`. */
     .anime-item .anime-name {
-        display: block;
+        /* inline-block, non block: cosi' il riquadro e' largo quanto il nome e
+           non quanto la riga. Si allunga solo se il nome e' lungo, e in quel
+           caso si ferma ai puntini. */
+        display: inline-block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
